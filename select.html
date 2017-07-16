@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>VUE-SELECT</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            max-height:300px
+        }
+
+        #v-s {
+            position: relative;
+            display: inline-block;
+        }
+
+        div.selected-div {
+            min-width: 80px;
+            border: 1px solid;
+            padding: 5px;
+            cursor: pointer;
+            min-height: 20px;
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: 400;
+            line-height: 1.42857143;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: middle;
+            -ms-touch-action: manipulation;
+            touch-action: manipulation;
+            cursor: pointer;
+            user-select: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            color: #333;
+            background-color: #e6e6e6;
+            border-color: #adadad; 
+        }
+
+        div.selected-div:hover {
+            background-color: #ccc;
+        }
+
+        li.option {
+            list-style: none;
+        /* border: 1px solid; */
+            cursor: pointer;
+        }
+        li.option.selectedItem{
+            background-color: #ccc;
+        }
+        li.option:hover {
+            color: #262626;
+            text-decoration: none;
+            background-color: #ccc;
+        /* background-color: #999; */
+        }
+
+        ul.options-list {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            z-index: 1000;
+            /* display: none; */
+            float: left;
+            min-width: 160px;
+            padding: 5px 0;
+            margin: 2px 0 0;
+            font-size: 14px;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            -webkit-background-clip: padding-box;
+            background-clip: padding-box;
+            border: 1px solid #ccc;
+            border: 1px solid rgba(0, 0, 0, .15);
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <p>父级元素获取到的值:{{value1}}</p><p>父级元素获取到的值:{{value2}}</p>
+        双向同步 : 
+        <input type="number" v-model="value1">
+        <input type="number" v-model="value2">
+        <div style="padding:10px">
+            <v-s :value.sync="value1" :options="options1"></v-s>
+            <button @click="addOpt(1)">增加1项</button>
+        </div>
+        <div style="padding:10px">
+            <v-s :value.sync="value2" :options.sync="options2"></v-s>
+            <button @click="addOpt(2)">增加1项</button>      
+        </div>    
+    </div>
+
+    <script src="http://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
+    <script>
+        Vue.component('v-s',{
+            template:'<div id="v-s"><div class="selected-div" @click="toggle"><span class="selected-span" v-for="(opt,idx) in selected">{{opt.name}}</span></div><ul v-show="open" class="options-list dropdown-menu inner"><li v-bind:class="{selectedItem:opt.selected}" class="option" v-for="(opt,idx) in options" @click="select(idx)">{{opt.name}}</li></ul></div>',
+            data:function(){
+                return {
+                open:false,
+                }
+            },
+            props:['value','options','size'],
+            methods:{
+                toggle:function(param){
+                    if(param==='show')this.open=true;
+                else if(param==='hide')this.open=false;
+                else this.open=!this.open;
+                },
+                select:function(idx){
+                    this.open=false;
+                for(let i=0,m=this.options.length;i<m;i++){
+                    this.options[i].selected=(i===idx);
+                    if(i===idx){
+                        this.$set(this.options[i],'selected',true);
+                    this.$emit('update:value',this.options[i].value);
+                    }else{
+                        this.$delete(this.options[i],'selected');
+                    }
+                }
+                },
+                setVal:function(val){
+                    if(!val)return false;
+                for(let i=0,m=this.options.length;i<m;i++){
+                    if(this.options[i].value==val){
+                        this.select(i);
+                    return i;
+                    }
+                }
+                return -1
+                }
+            },
+            computed:{
+                selected:function(){
+                    return this.options.filter(function(item){return item.selected===true;});
+                },
+                val:function(){
+                    return this.selected.length>0?this.selected[0].value:null;
+                },
+            },
+            watch:{
+                val:function(val){
+                    this.$emit('update:value', val);
+                },
+                value:function(val){
+                    this.setVal(val);
+                }
+            },
+            beforeCreate:function(){
+                console.log('cc');
+                document.body.addEventListener('click',function(e){
+                        if(Array.prototype.indexOf.call(e.target.classList,'selected-div')==-1 && Array.prototype.indexOf.call(e.target.classList,'selected-span')==-1){
+                    this.toggle('hide');
+                }
+                }.bind(this));
+            }
+        })
+
+        vm=new Vue({
+            el:'#app',
+            data:{
+                options1:[
+                    {name:'a',value:0},{name:'b',value:1},{name:'c',value:2}
+                ],
+                options2:[
+                    {name:'aa',value:'aa_0'},{name:'bb',value:'bb_1'},{name:'cc',value:'cc_2'}
+                ],
+                value1:0,
+                value2:6,
+            },
+            methods:{
+                addOpt:function(i){
+                    if(i==1)this.options1.push({value:new Date().getTime(),name:new Date()});
+                if(i==2)this.options2.push({value:new Date().getTime(),name:new Date()});
+                }
+            }
+        })
+    </script>
+    <script src='nav.js'></script>
+</body>
+</html>

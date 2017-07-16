@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Select</title>
+    <style>
+        body{
+            padding: 40px;
+        }
+        #demo-table{
+            border-collapse: collapse;
+        }
+        #demo-table td{
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 6px;
+        }
+    </style>
+</head>
+<body>
+<p>点击选择已有标签或键入新标签后回车, 退格删除标签</p>
+<div id="app">
+    <table id="demo-table" style="margin-bottom: 20px">
+        <tr>
+            <td>名称</td>
+            <td>新建 or 从已有选择</td>
+        </tr>
+        <tr v-for="(item , idx) in prop_tag">
+            <td>{{item.name}}</td>
+            <td>{{item.isNew?'新建':'已有'}}</td>
+        </tr>
+    </table>
+    <tag-editor  :selected-tags.sync="prop_tag"></tag-editor>
+</div>
+<script src="http://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
+<script type="text/x-template" id="tagEditor">
+    <div>
+        <div class="edit-areas">
+        <span class="selected-tag-box">
+            <span v-for="( tag , idx ) in prop_selectedTags" class="selected-tag">
+                {{tag.name}}
+                <span class="del-tag-btn" v-on:click="deleteTag(idx)">x</span>
+            </span>
+        </span>
+            <input type="text" v-model="newTagInput" class="tag-input" @keydown.enter="addTag" @keydown.delete="backspaceKeyDelete"></div>
+        <div class="exist-tag-box">
+            <span v-for="( tag , idx) in existTags" v-if="!existTags[idx].selected" class="exist-tag" v-on:click="selectTag(idx)">{{tag.name}}</span>
+        </div>
+    </div>
+</script>
+<script>
+    Vue.component('tag-editor', {
+        template: '#tagEditor',
+        data: function () {
+            return {
+                prop_selectedTags:this.selectedTags,
+                existTags:[],
+                newTagInput:''
+            }
+        },
+        props:{
+            selectedTags:{
+                type:Array,
+                default:function(){return []}
+            }
+        },
+        methods:{
+            addTag:function () {
+                if(this.newTagInput!==''){
+                    this.prop_selectedTags.push({name:this.newTagInput,isNew:!this.isInputExist});
+                    this.newTagInput='';
+                }
+            },
+            selectTag:function (idx) {
+                let targetTag=this.existTags[idx];
+                if(targetTag.selected===false){
+                    this.prop_selectedTags.push({name:targetTag.name,isNew:false});
+                    targetTag.selected=true;
+                }
+            },
+            deleteTag:function (idx) {
+                let targetTag=this.prop_selectedTags[idx];
+                if(!targetTag.isNew)this.existTags.filter(function (item) {
+                    return item.name===targetTag.name;
+                }.bind(this))[0].selected=false;
+                this.prop_selectedTags.splice(idx,1);
+            },
+            backspaceKeyDelete:function () {
+                if(!this.newTagInput)this.deleteTag(this.prop_selectedTags.length-1);
+            }
+        },
+        computed:{
+            isInputExist:function () {
+                let This=this;
+                return this.existTags.filter(function (item) {return item.name===This.newTagInput;}).length>0;
+            },
+        },
+        /**
+         * 获取已存在的Tags
+         */
+        mounted:function(){
+            this.existTags=[{name:'old-1',selected:false},{name:'old-2',selected:false},{name:'old-3',selected:false}];
+//            let This=this;
+//            vm.$http.get('/tag/list').then(function (res) {
+//                if(res.data.result===0){
+//                    This.existTags=[];
+//                    for(let i=0,m=res.data.list.length;i<m;i++){
+//                        This.existTags.push({name:res.data.list[i].name,selected:false});
+//                    }
+//                }
+//            });
+        },
+        watch:{
+            prop_selectedTags:function (val) {
+                this.$emit('update:selectedTags',val)
+            }
+        }
+    });
+
+
+    vm=new Vue({
+        el:'#app',
+        data:{
+            prop_tag:[{name:'newtag',isNew:true}]
+        },
+        methods:{
+
+        }
+    })
+
+</script>
+
+<style>
+    #tagEditor{
+        padding:15px 0;
+        text-align: center;
+    }
+    .edit-areas,.exist-tag-box{
+        min-height: 30px;
+    }
+    .exist-tag,.selected-tag{
+        padding:2px 6px;
+        margin:0 2px;
+        border: 1px solid;
+        display: inline-block;
+    }
+    .exist-tag{
+        cursor: pointer;
+    }
+    .tag-input{
+        border: none;
+        border-bottom: 1px solid;
+        outline: none;
+    }
+    .del-tag-btn{
+        color: #ee4444;
+        cursor: pointer;
+    }
+</style>
+
+
+<script src='nav.js'></script>
+</body>
+</html>
