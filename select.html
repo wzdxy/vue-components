@@ -100,7 +100,7 @@
         </div>    
     </div>
 
-    <script src="http://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
+    <script src="https://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
     <script>
         Vue.component('v-s',{
             template:'<div id="v-s"><div class="selected-div" @click="toggle"><span class="selected-span" v-for="(opt,idx) in selected">{{opt.name}}</span></div><ul v-show="open" class="options-list dropdown-menu inner"><li v-bind:class="{selectedItem:opt.selected}" class="option" v-for="(opt,idx) in options" @click="select(idx)">{{opt.name}}</li></ul></div>',
