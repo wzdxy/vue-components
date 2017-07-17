@@ -3,7 +3,7 @@ let navList=[
     {name:'Index',href:'index.html'},
     {name:'下拉选择',href:'select.html'},
     {name:'标签编辑器',href:'tag-editor.html'},
-    {name:'单选',href:'single=checkbox.html'}
+    {name:'单选',href:'single-checkbox.html'}
 ]
 navList.forEach(function(item) {
     liStr+='<li style=""><a href="'+item.href+'">'+item.name+'</a></li>';
