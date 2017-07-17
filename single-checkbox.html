@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+        .option{
+        background-color: #999;
+        line-height: 80px;
+        cursor: pointer;
+        }
+
+        .selected{
+        color:#fff;
+        background-color: #444;
+        }
+        .option:hover{
+        background-color: #666;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div>
+            <div class="option" v-for="( item,index ) in options" v-on:click=select(index) v-bind:class="{'selected':item.selected}">
+                <span>{{item.selected?'√':'X'}}</span>{{item.text}}</div>
+                <br>
+            <div>result:{{result}}</div>
+        </div>
+    </div>
+    <script src="https://cdn.bootcss.com/vue/2.4.1/vue.js"></script>
+    <script>
+        window.vm= new Vue({
+            el:'#app',
+        data:{
+            options:[
+            {
+                value:0,
+                text:'科学技术是第一生产力',        
+            },
+            {
+                value:1,
+                text:'保护环境',
+            },
+            {
+                value:2,
+                text:'依法治国',
+            }
+                ]
+        },
+        methods:{
+            select:function(idx){
+            if(!this.options[idx].selected){      	
+                this.$set(this.options[idx],'selected',true);
+            }else{      	
+                this.$delete(this.options[idx],'selected');
+            }
+            this.clear(idx);
+            },
+            clear:function(current){
+                for(idx in this.options){
+                if(current==idx)continue;        
+                this.$delete(this.options[idx],'selected');
+            }
+            }
+        },
+        computed:{
+            result:function(){
+                //return JSON.stringify(this.$data.options.filter(function(element){return(element.selected===true)}));
+            return this.$data.options;
+            }
+        }
+        })
+</script>
+<script src='nav.js'></script>
+</body>
+</html>
